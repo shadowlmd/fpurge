@@ -1,0 +1,2 @@
+? Использовать как основной ArhivePath, и перемещать файлы из файлэх вида: ArhivePath\Fecho\Moved Old File.
+? Хорошо было бы еще прикручивать к перемещаемым файлам files.bbs: ArhivePath\Fecho\files.bbs, а также удалять убитые файлы из files.bbs
