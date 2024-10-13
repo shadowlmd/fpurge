@@ -170,7 +170,7 @@ begin
 	end;
 
 	result := FileRename(OldName, ChangeFileExt(NewName, '-' +
-		FormatDateTime('yyyymmdd-hhnn', DT) + ExtractFileExt(NewName)));
+		FormatDateTime('yyyymmdd-hhnnss', DT) + ExtractFileExt(NewName)));
 end;
 
 // true if age is extracted, false if not.
