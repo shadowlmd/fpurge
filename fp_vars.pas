@@ -8,7 +8,7 @@ uses
 	Objects;
 
 const
-	version                   = 'FPurge 0.32 (c) 2018 Alexey Fayans, 2:5030/1997 [2018-08-31]';
+	version                   = 'FPurge 0.33 (C) 2024 Alexey Fayans, 2:5030/1997';
 
 	CfgName        : string   = 'fpurge.cfg';
 	PurgeList      : string   = 'fpurge.lst';

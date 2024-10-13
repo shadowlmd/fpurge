@@ -7,6 +7,7 @@ unit fp_Misc;
 interface
 
 uses
+	SysUtils,
 	Dos,
 	fp_Vars;
 
@@ -160,37 +161,16 @@ end;
 
 function FileRenameEx(const OldName, NewName: string): boolean;
 var
-	i: byte;
-	s: string;
+	DT: TDateTime;
 begin
-	if FileRename(OldName, NewName) then
+	if not FileAge(OldName, DT) then
 	begin
-		result := true;
+		result := false;
 		exit;
 	end;
 
-	result := false;
-
-	// без комментариев.. :)
-	if OldName = NewName then exit;
-
-	// если исходный файл не существует, выходим.
-	if not FileExists(OldName) then exit
-	else
-		// если файл, в который надо переименовать, не существует, выходим,
-		// т.к. это значит, что что-то совсем не так.
-		if not FileExists(NewName) then exit;
-
-	// попробуем добавлять к имени файла цифру.
-	for i := 1 to 255 do
-	begin
-		Str(i, s);
-		if FileRename(OldName, NewName+'.'+s) then
-		begin
-			result := true;
-			break;
-		end;
-	end;
+	result := FileRename(OldName, ChangeFileExt(NewName, '-' +
+		FormatDateTime('yyyymmdd-hhnn', DT) + ExtractFileExt(NewName)));
 end;
 
 // true if age is extracted, false if not.
