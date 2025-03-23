@@ -9,12 +9,12 @@ function Age(D: longint): longint;
 implementation
 
 uses
-	SysUtils,
-	DateUtils;
+  SysUtils,
+  DateUtils;
 
 function Age(D: longint): longint;
 begin
-	result := DaysBetween(Now, DosDateTimeToDateTime(D));
+  result := DaysBetween(Now, DosDateTimeToDateTime(D));
 end;
 
 end.

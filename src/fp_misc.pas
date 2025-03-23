@@ -7,9 +7,9 @@ unit fp_Misc;
 interface
 
 uses
-	SysUtils,
-	Dos,
-	fp_Vars;
+  SysUtils,
+  Dos,
+  fp_Vars;
 
 // strings stuff
 function UpStr(const s: string): string;
@@ -38,162 +38,162 @@ implementation
 
 function LTrim(S: String): String;
 var
-	K: Byte;
+  K: Byte;
 begin
-	K:=1;
+  K:=1;
 
-	while (K <= Length(S)) and (S[K] = ' ') do
-		Inc(K);
+  while (K <= Length(S)) and (S[K] = ' ') do
+    Inc(K);
 
-	LTrim:=Copy(S, K, 255);
+  LTrim:=Copy(S, K, 255);
 end;
 
 function RTrim(S: String): String;
 var
-	L: Byte;
+  L: Byte;
 begin
-	L:=Length(S);
+  L:=Length(S);
 
-	while (L <> 0) and (S[L] = ' ') do
-		Dec(L);
+  while (L <> 0) and (S[L] = ' ') do
+    Dec(L);
 
-	RTrim:=Copy(S, 1, L);
+  RTrim:=Copy(S, 1, L);
 end;
 
 procedure TrimEx(var S: String);
 var
-	K, L: Byte;
+  K, L: Byte;
 begin
-	K:=1;
+  K:=1;
 
-	while (K <= Length(S)) and (S[K] = ' ') do
-		Inc(K);
+  while (K <= Length(S)) and (S[K] = ' ') do
+    Inc(K);
 
-	L:=Length(S);
+  L:=Length(S);
 
-	while (L <> 0) and (S[L] = ' ') do
-		Dec(L);
+  while (L <> 0) and (S[L] = ' ') do
+    Dec(L);
 
-	Dec(L, K);
-	Inc(L);
+  Dec(L, K);
+  Inc(L);
 
-	S:=Copy(S, K, L);
+  S:=Copy(S, K, L);
 end;
 
 function Trim(S: String): String;
 begin
-	TrimEx(S);
+  TrimEx(S);
 
-	Trim:=S;
+  Trim:=S;
 end;
 
 function UpStr(const s: string): string;
 var
-	i: byte;
+  i: byte;
 begin
-	for i := 1 to Length(s) do result[i] := UpCase(s[i]);
-	result[0] := s[0];
+  for i := 1 to Length(s) do result[i] := UpCase(s[i]);
+  result[0] := s[0];
 end;
 
 procedure Info(const s: string);
 begin
-	if not Quiet then WriteLn(s);
+  if not Quiet then WriteLn(s);
 end;
 
 function AddBkSlash(Path: string): string;
 begin
-	if Path[Length(Path)] = DirectorySeparator then
-		result := Path
-	else
-		result := Path + DirectorySeparator;
+  if Path[Length(Path)] = DirectorySeparator then
+    result := Path
+  else
+    result := Path + DirectorySeparator;
 end;
 
 function RemoveBkSlash(Path: string): string;
 begin
-	if Path[Length(Path)] = DirectorySeparator then
-		result := copy(Path, 1, Length(Path)-1)
-	else
-		result := Path;
+  if Path[Length(Path)] = DirectorySeparator then
+    result := copy(Path, 1, Length(Path)-1)
+  else
+    result := Path;
 end;
 
 function DirExists(Path: string): boolean;
 var
-	SR: SearchRec;
+  SR: SearchRec;
 begin
-	FindFirst(Path + '*', AnyFile, SR);
-	result := DosError = 0;
-	FindClose(SR);
+  FindFirst(Path + '*', AnyFile, SR);
+  result := DosError = 0;
+  FindClose(SR);
 end;
 
 function DirCreate(Path: string): boolean;
 begin
-	MkDir(Path);
-	result := IOResult = 0;
+  MkDir(Path);
+  result := IOResult = 0;
 end;
 
 function FileExists(const Name: string): boolean;
 var
-	f: file;
-	a: word;
+  f: file;
+  a: word;
 begin
-	assign(f, name);
-	GetFAttr(f, a);
-	result := DosError = 0;
+  assign(f, name);
+  GetFAttr(f, a);
+  result := DosError = 0;
 end;
 
 function FileDelete(const Name: string): boolean;
 var
-	f: file;
+  f: file;
 begin
-	assign(f, Name);
-	erase(f);
-	result := IOResult = 0;
+  assign(f, Name);
+  erase(f);
+  result := IOResult = 0;
 end;
 
 function FileRename(const OldName, NewName: string): boolean;
 var
-	f: file;
+  f: file;
 begin
-	assign(f, OldName);
-	rename(f, NewName);
-	result := IOResult = 0;
+  assign(f, OldName);
+  rename(f, NewName);
+  result := IOResult = 0;
 end;
 
 function FileRenameEx(const OldName, NewName: string): boolean;
 var
-	DT: TDateTime;
+  DT: TDateTime;
 begin
-	if not FileAge(OldName, DT) then
-	begin
-		result := false;
-		exit;
-	end;
+  if not FileAge(OldName, DT) then
+  begin
+    result := false;
+    exit;
+  end;
 
-	result := FileRename(OldName, ChangeFileExt(NewName, '-' +
-		FormatDateTime('yyyymmdd-hhnnss', DT) + ExtractFileExt(NewName)));
+  result := FileRename(OldName, ChangeFileExt(NewName, '-' +
+    FormatDateTime('yyyymmdd-hhnnss', DT) + ExtractFileExt(NewName)));
 end;
 
 // true if age is extracted, false if not.
 function SplitPathAge(const PathAge: string; var Path: string; var Age: integer): boolean;
 var
-	i: longint;
-	s: string;
+  i: longint;
+  s: string;
 begin
-	i := Pos('|', PathAge);
-	if i = 0 then
-	begin
-		result := false;
-		Path := AddBkSlash(PathAge);
-	end else
-	begin
-		Path := AddBkSlash(Copy(PathAge, 1, i-1));
-		s := Copy(PathAge, i+1, Length(PathAge)-i);
-		Val(s, Age, i);
-		if i = 0 then
-			result := true
-		else
-			result := false;
-	end;
+  i := Pos('|', PathAge);
+  if i = 0 then
+  begin
+    result := false;
+    Path := AddBkSlash(PathAge);
+  end else
+  begin
+    Path := AddBkSlash(Copy(PathAge, 1, i-1));
+    s := Copy(PathAge, i+1, Length(PathAge)-i);
+    Val(s, Age, i);
+    if i = 0 then
+      result := true
+    else
+      result := false;
+  end;
 end;
 
 {
@@ -202,109 +202,109 @@ end;
 }
 
 type
-	TCheckWildcardStack = packed record
-		Src, Mask: Byte;
-	end;
+  TCheckWildcardStack = packed record
+    Src, Mask: Byte;
+  end;
 
 function CheckWildcard(const Src, Mask: String): Boolean;
 var
-	Stack: array[1..128] of TCheckWildcardStack;
-	StackPointer,
-	SrcPosition, MaskPosition,
-	SrcLength, MaskLength: Byte;
+  Stack: array[1..128] of TCheckWildcardStack;
+  StackPointer,
+  SrcPosition, MaskPosition,
+  SrcLength, MaskLength: Byte;
 begin
-	CheckWildcard:=False;
+  CheckWildcard:=False;
 
-	if (Mask = '') and (Src <> '') then
-		Exit;
+  if (Mask = '') and (Src <> '') then
+    Exit;
 
-	MaskLength:=Length(Mask);
-	SrcLength:=Length(Src);
+  MaskLength:=Length(Mask);
+  SrcLength:=Length(Src);
 
-	if Mask[MaskLength] <> '*' then
-		while (MaskLength > 1) and (SrcLength > 1) do
-		begin
-			if (Mask[MaskLength] = '*') or (Mask[MaskLength] = '?') then
-				Break;
+  if Mask[MaskLength] <> '*' then
+    while (MaskLength > 1) and (SrcLength > 1) do
+    begin
+      if (Mask[MaskLength] = '*') or (Mask[MaskLength] = '?') then
+        Break;
 
-			if Mask[MaskLength] <> Src[SrcLength] then
-				Exit;
+      if Mask[MaskLength] <> Src[SrcLength] then
+        Exit;
 
-			Dec(MaskLength);
-			Dec(SrcLength);
-		end;
+      Dec(MaskLength);
+      Dec(SrcLength);
+    end;
 
-	if Mask[MaskLength] = '*' then
-		while (Mask[MaskLength - 1] = '*') and (MaskLength > 1) do
-			Dec(MaskLength);
+  if Mask[MaskLength] = '*' then
+    while (Mask[MaskLength - 1] = '*') and (MaskLength > 1) do
+      Dec(MaskLength);
 
-	StackPointer:=0;
+  StackPointer:=0;
 
-	SrcPosition:=1;
-	MaskPosition:=1;
+  SrcPosition:=1;
+  MaskPosition:=1;
 
-	while (SrcPosition <= SrcLength) and (MaskPosition <= MaskLength) do
-	begin
-		case Mask[MaskPosition] of
-			'?':
-			begin
-				Inc(SrcPosition);
-				Inc(MaskPosition);
-			end;
-			'*':
-			begin
-				if (MaskPosition = 1) or (Mask[MaskPosition - 1] <> '*') then
-				Inc(StackPointer);
+  while (SrcPosition <= SrcLength) and (MaskPosition <= MaskLength) do
+  begin
+    case Mask[MaskPosition] of
+      '?':
+      begin
+        Inc(SrcPosition);
+        Inc(MaskPosition);
+      end;
+      '*':
+      begin
+        if (MaskPosition = 1) or (Mask[MaskPosition - 1] <> '*') then
+        Inc(StackPointer);
 
-				Stack[StackPointer].Mask:=MaskPosition;
+        Stack[StackPointer].Mask:=MaskPosition;
 
-				Inc(MaskPosition);
+        Inc(MaskPosition);
 
-				if MaskPosition <= MaskLength then
-					if (Mask[MaskPosition] <> '?') and (Mask[MaskPosition] <> '*') then
-						while (SrcPosition <= Length(Src)) and (Src[SrcPosition] <> Mask[MaskPosition]) do
-							Inc(SrcPosition);
+        if MaskPosition <= MaskLength then
+          if (Mask[MaskPosition] <> '?') and (Mask[MaskPosition] <> '*') then
+            while (SrcPosition <= Length(Src)) and (Src[SrcPosition] <> Mask[MaskPosition]) do
+              Inc(SrcPosition);
 
-				Stack[StackPointer].Src:=SrcPosition + 1;
-			end;
-		else
-			if Src[SrcPosition] = Mask[MaskPosition] then
-			begin
-				Inc(SrcPosition);
-				Inc(MaskPosition);
-			end else
-			begin
-				if StackPointer = 0 then
-					Exit;
+        Stack[StackPointer].Src:=SrcPosition + 1;
+      end;
+    else
+      if Src[SrcPosition] = Mask[MaskPosition] then
+      begin
+        Inc(SrcPosition);
+        Inc(MaskPosition);
+      end else
+      begin
+        if StackPointer = 0 then
+          Exit;
 
-				SrcPosition:=Stack[StackPointer].Src;
-				MaskPosition:=Stack[StackPointer].Mask;
+        SrcPosition:=Stack[StackPointer].Src;
+        MaskPosition:=Stack[StackPointer].Mask;
 
-				Dec(StackPointer)
-			end;
-		end;
+        Dec(StackPointer)
+      end;
+    end;
 
-		while not ((SrcPosition <= SrcLength) xor (MaskPosition > MaskLength)) do
-		begin
-			if (MaskPosition >= MaskLength) and (Mask[MaskLength] = '*') then
-				Break;
+    while not ((SrcPosition <= SrcLength) xor (MaskPosition > MaskLength)) do
+    begin
+      if (MaskPosition >= MaskLength) and (Mask[MaskLength] = '*') then
+        Break;
 
-			if StackPointer = 0 then
-				Exit;
+      if StackPointer = 0 then
+        Exit;
 
-			SrcPosition:=Stack[StackPointer].Src;
-			MaskPosition:=Stack[StackPointer].Mask;
+      SrcPosition:=Stack[StackPointer].Src;
+      MaskPosition:=Stack[StackPointer].Mask;
 
-			Dec(StackPointer)
-		end;
-	end;
+      Dec(StackPointer)
+    end;
+  end;
 
-	CheckWildcard:=True;
+  CheckWildcard:=True;
 end;
 
 function IsWildcard(const Mask: String): Boolean;
 begin
-	IsWildcard:=(Pos('*', Mask) > 0) or (Pos('?', Mask) > 0);
+  IsWildcard:=(Pos('*', Mask) > 0) or (Pos('?', Mask) > 0);
 end;
 
 end.
