@@ -7,6 +7,9 @@ unit fp_Misc;
 interface
 
 uses
+  {$IFDEF Windows}
+  Windows,
+  {$ENDIF}
   SysUtils,
   Dos,
   fp_Vars;
@@ -21,14 +24,18 @@ procedure TrimEx(var S: String);
 // file stuff
 function AddBkSlash(Path: string): string;
 function RemoveBkSlash(Path: string): string;
+{$IFDEF Windows}
+function GetFileCreationTime(const FileName: AnsiString; out CreationTime: TDateTime): Boolean;
+{$ENDIF}
+function GetFileAge(const FileName: AnsiString; out DT: TDateTime): Boolean;
 function DirExists(Path: string): boolean;
 function DirCreate(Path: string): boolean;
 function FileExists(const Name: string): boolean;
 function FileDelete(const Name: string): boolean;
 function FileRename(const OldName, NewName: string): boolean;
 function FileRenameEx(const OldName, NewName: string): boolean;
-function IsWildcard(const Mask: String): Boolean;
 function CheckWildcard(const Src, Mask: String): Boolean;
+function IsWildcard(const Mask: String): Boolean;
 
 // misc stuff
 procedure Info(const s: string);
@@ -116,6 +123,39 @@ begin
     result := Path;
 end;
 
+{$IFDEF Windows}
+function GetFileCreationTime(const FileName: AnsiString; out CreationTime: TDateTime): Boolean;
+var
+  Handle: THandle;
+  FileCreationTime, LastAccessTime, LastWriteTime: TFileTime;
+  SysTime: TSystemTime;
+begin
+  Result := False;
+
+  Handle := CreateFile(PChar(FileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+  if Handle = INVALID_HANDLE_VALUE then
+    Exit;
+
+  if GetFileTime(Handle, @FileCreationTime, @LastAccessTime, @LastWriteTime) then
+  begin
+    FileTimeToSystemTime(FileCreationTime, SysTime);
+    CreationTime := SystemTimeToDateTime(SysTime);
+    Result := True;
+  end;
+
+  CloseHandle(Handle);
+end;
+{$ENDIF}
+
+function GetFileAge(const FileName: AnsiString; out DT: TDateTime): Boolean;
+begin
+  {$IFDEF Windows}
+  Result := (UseCreationTime and GetFileCreationTime(FileName, DT));
+  if not Result then
+  {$ENDIF}
+    Result := FileAge(FileName, DT);
+end;
+
 function DirExists(Path: string): boolean;
 var
   SR: SearchRec;
@@ -163,7 +203,7 @@ function FileRenameEx(const OldName, NewName: string): boolean;
 var
   DT: TDateTime;
 begin
-  if not FileAge(OldName, DT) then
+  if not GetFileAge(OldName, DT) then
   begin
     result := false;
     exit;

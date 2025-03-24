@@ -50,9 +50,12 @@ begin
   GetValue('KILLFILES', vtBool, KillFiles);
   GetValue('DEFAGE', vtInt, DefAge);
 
-  // ≠•Æ°Ôß†‚•´Ï≠Î• Ø†‡†¨•‚‡Î. ≠®™†™®Â ¢Æ‡≠®≠£Æ¢.
+  // –Ω–µ–æ–±—è–∑–∞—Ç–µ–ª—å–Ω—ã–µ –ø–∞—Ä–∞–º–µ—Ç—Ä—ã. –Ω–∏–∫–∞–∫–∏—Ö –≤–æ—Ä–Ω–∏–Ω–≥–æ–≤.
   CfgGetKeyValue(conf, 'LOGNAME', ' ', vtStr, LogName);
   CfgGetKeyValue(conf, 'EXCLUDELIST', ' ', vtStr, ExcludeList);
+  {$IFDEF Windows}
+  CfgGetKeyValue(conf, 'USECREATIONTIME', ' ', vtBool, UseCreationTime);
+  {$ENDIF}
   Info('Done');
 
   Dispose(conf, Done);

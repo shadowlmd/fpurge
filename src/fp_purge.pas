@@ -117,14 +117,27 @@ end;
 procedure PurgeDir(const Path: string; MaxAge: integer);
 var
   SR: SearchRec;
+  {$IFDEF Windows}
+  DT: TDateTime;
+  {$ENDIF}
 begin
   FindFirst(Path + '*', AnyFile-Directory-VolumeID, SR);
   if (DosError <> 0) and (DosError <> 18) then
     Info('Warning: directory "' + Path + '" doen not exist or acces is denied');
   while DosError = 0 do
   begin
-    if (Age(SR.Time) >= MaxAge) and not InExcludeList(UpStr(SR.Name)) then
-      PurgeFile(Path, SR.Name);
+    if not InExcludeList(UpStr(SR.Name)) then
+    begin
+      {$IFDEF Windows}
+      if UseCreationTime and GetFileCreationTime(Path + SR.Name, DT) then
+      begin
+        if AgeDT(DT) >= MaxAge then
+          PurgeFile(Path, SR.Name);
+      end else
+      {$ENDIF}
+      if Age(SR.Time) >= MaxAge then
+        PurgeFile(Path, SR.Name);
+    end;
     FindNext(SR);
   end;
   FindClose(SR);
@@ -137,7 +150,7 @@ procedure Purge;
     PurgePath   : string;
     PurgeMaxAge : integer;
   begin
-    if not SplitPathAge(pstring(ps)^, PurgePath, PurgeMaxAge) then
+    if not SplitPathAge(ps^, PurgePath, PurgeMaxAge) then
     begin
       Info('Warning: age value of "' + PurgePath + '" is incorrect, using default value');
       PurgeMaxAge := DefAge;
@@ -148,14 +161,14 @@ procedure Purge;
   end;
 
 begin
-  // �᫨ ��ন�� ��祣�, ��室��.
+  // если пуржить нечего, выходим.
   if PurgeDirs^.Count = 0 then
   begin
     Info('Warning: nothing to purge');
     exit;
   end;
 
-  // �᫨ ��⠭����� ०�� ��६�饭�� � ��娢, �஢�ਬ ��४���.
+  // если установлен режим перемещения в архив, проверим директорию.
   if not KillFiles then
   begin
     if Length(ArchivePath) = 0 then
