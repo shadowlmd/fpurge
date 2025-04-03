@@ -16,19 +16,8 @@ implementation
 
 procedure GetValue(const name: string; vt: byte; var value);
 begin
-  case vt of
-    vtStr:
-      if not CfgGetKeyValue(conf, name, ' ', vt, string(value))
-      then Info('Warning: ' + CfgLastError);
-
-    vtInt:
-      if not CfgGetKeyValue(conf, name, ' ', vt, integer(value))
-      then Info('Warning: ' + CfgLastError);
-
-    vtBool:
-      if not CfgGetKeyValue(conf, name, ' ', vt, boolean(value))
-      then Info('Warning: ' + CfgLastError);
-  end;
+  if not CfgGetKeyValue(conf, name, ' ', vt, value)
+  then Info('Warning: ' + CfgLastError);
 end;
 
 procedure ParseCfg;
