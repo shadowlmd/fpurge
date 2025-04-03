@@ -72,15 +72,15 @@ function InExcludeList(const Name: string): boolean;
 var
   found: boolean;
 
-  function MatchExcludeName(ps: pstring): boolean;
+  function MatchExcludeName(ps: PString): boolean;
   begin
-    if IsWildCard(pstring(ps)^) then
+    if IsWildCard(ps^) then
     begin
-      if CheckWildCard(Name, pstring(ps)^) then
+      if CheckWildCard(Name, ps^) then
         found := true;
     end else
     begin
-      if Name = pstring(ps)^ then
+      if Name = ps^ then
         found := true;
     end;
     result := found;
@@ -145,7 +145,7 @@ end;
 
 procedure Purge;
 
-  procedure DoPurge(ps: pstring);
+  procedure DoPurge(ps: PString);
   var
     PurgePath   : string;
     PurgeMaxAge : integer;

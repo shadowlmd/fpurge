@@ -53,7 +53,7 @@ var
 begin
   for i := PurgeDirs^.Count-1 downto 0 do
   begin
-    SplitPathAge(pstring(PurgeDirs^.At(i))^, s, tmp);
+    SplitPathAge(PString(PurgeDirs^.At(i))^, s, tmp);
     if not DirExists(s) then
     begin
       LogWriteLn('non-existent directory "' + s + '" removed from list');
@@ -66,9 +66,9 @@ procedure SavePurgeList;
 var
   f: text;
 
-  procedure DoSavePurgeList(ps: pstring);
+  procedure DoSavePurgeList(ps: PString);
   begin
-    WriteLn(f, pstring(ps)^);
+    WriteLn(f, ps^);
   end;
 
 begin // SavePurgeList
@@ -106,12 +106,12 @@ function InPurgeList(const Path: string): boolean;
 var
   found: boolean;
 
-  function MatchPurgeDir(ps: pstring): boolean;
+  function MatchPurgeDir(ps: PString): boolean;
   var
     s: string;
     i: integer;
   begin
-    SplitPathAge(pstring(ps)^, s, i);
+    SplitPathAge(ps^, s, i);
     if Path = UpStr(s) then
     begin
       found := true;
@@ -133,13 +133,13 @@ end;
 
 procedure ScanRootDirs;
 
-  procedure DoScan(ps: pstring);
+  procedure DoScan(ps: PString);
   var
     DefAgeStr,
     Path        : string;
     SR          : SearchRec;
   begin
-    Path := AddBkSlash(pstring(ps)^);
+    Path := AddBkSlash(ps^);
 
     FindFirst(Path + '*', Directory, SR);
     if (DosError <> 0) and (DosError <> 18) then

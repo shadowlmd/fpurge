@@ -63,7 +63,7 @@ var
   i        : longint;
   StrValue : string;
 
-  function ExtractValue(ps: pstring): boolean;
+  function ExtractValue(ps: PString): boolean;
   var
     tmp  : string;
     i    : byte;
@@ -71,17 +71,17 @@ var
     result := false;
 
     // ищем первый разделяющий символ, если не находим, выходим.
-    i := pos(delim, pstring(ps)^);
+    i := pos(delim, ps^);
     if i = 0 then exit;
 
     // копируем часть строки с начала до первого встреченного разделителя
-    tmp := copy(pstring(ps)^, 1, i-1);
+    tmp := copy(ps^, 1, i-1);
 
     // сравниваем значение с названием искомого параметра, выходим, если не совпадают
     if UpStr(tmp) <> key then exit;
 
     // копируем часть строки после первого встреченного разделителя до конца, удаляем лишние пробелы слева.
-    tmp := LTrim(copy(pstring(ps)^, i+1, length(pstring(ps)^)-i));
+    tmp := LTrim(copy(ps^, i+1, length(ps^)-i));
 
     // если строка пустая, выходим.
     if length(tmp) = 0 then exit;
