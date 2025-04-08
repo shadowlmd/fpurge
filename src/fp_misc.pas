@@ -132,7 +132,7 @@ var
 begin
   Result := False;
 
-  Handle := CreateFile(PChar(FileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+  Handle := CreateFile(PAnsiChar(FileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
   if Handle = INVALID_HANDLE_VALUE then
     Exit;
 
