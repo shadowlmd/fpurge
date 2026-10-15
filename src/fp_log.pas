@@ -7,8 +7,8 @@ interface
 
 uses
   Dos,
-  fp_Vars,
-  fp_Misc;
+  fp_Misc,
+  fp_Vars;
 
 procedure LogOpen;
 procedure LogClose;
