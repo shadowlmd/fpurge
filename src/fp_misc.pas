@@ -32,7 +32,6 @@ function DirExists(Path: string): boolean;
 function DirCreate(Path: string): boolean;
 function FileExists(const Name: string): boolean;
 function FileDelete(const Name: string): boolean;
-function FileRename(const OldName, NewName: string): boolean;
 function FileRenameEx(const OldName, NewName: string): boolean;
 function CheckWildcard(const Src, Mask: String): Boolean;
 function IsWildcard(const Mask: String): Boolean;
@@ -190,15 +189,6 @@ begin
   result := IOResult = 0;
 end;
 
-function FileRename(const OldName, NewName: string): boolean;
-var
-  f: file;
-begin
-  assign(f, OldName);
-  rename(f, NewName);
-  result := IOResult = 0;
-end;
-
 function FileRenameEx(const OldName, NewName: string): boolean;
 var
   DT: TDateTime;
@@ -209,7 +199,7 @@ begin
     exit;
   end;
 
-  result := FileRename(OldName, ChangeFileExt(NewName, '-' +
+  result := RenameFile(OldName, ChangeFileExt(NewName, '-' +
     FormatDateTime('yyyymmdd-hhnnss', DT) + ExtractFileExt(NewName)));
 end;
 
