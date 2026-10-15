@@ -6,6 +6,7 @@ unit fp_Scan;
 interface
 
 uses
+  SysUtils,
   Objects,
   Dos,
   CfgParser,
@@ -54,7 +55,7 @@ begin
   for i := PurgeDirs^.Count-1 downto 0 do
   begin
     SplitPathAge(PString(PurgeDirs^.At(i))^, s, tmp);
-    if not DirExists(s) then
+    if not DirectoryExists(s) then
     begin
       LogWriteLn('non-existent directory "' + s + '" removed from list');
       PurgeDirs^.AtFree(i);
@@ -112,7 +113,7 @@ var
     i: integer;
   begin
     SplitPathAge(ps^, s, i);
-    if Path = UpStr(s) then
+    if Path = UpperCase(s) then
     begin
       found := true;
       result := true;
@@ -146,7 +147,7 @@ procedure ScanRootDirs;
       Info('Warning: directory "' + Path + '" doen not exist or acces is denied');
     while DosError = 0 do
     begin
-      if not ((SR.Name = '.') or (SR.Name = '..') or InPurgeList(UpStr(Path+SR.Name)+DirectorySeparator)) then
+      if not ((SR.Name = '.') or (SR.Name = '..') or InPurgeList(UpperCase(Path+SR.Name)+DirectorySeparator)) then
       begin
         LogWriteLn('found new directory: "' + Path+SR.Name + '"');
         Str(DefAge, DefAgeStr);

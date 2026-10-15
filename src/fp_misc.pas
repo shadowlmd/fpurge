@@ -11,96 +11,24 @@ uses
   Windows,
   {$ENDIF}
   SysUtils,
-  Dos,
+  Classes,
   fp_Vars;
 
-// strings stuff
-function UpStr(const s: string): string;
-function LTrim(S: String): String;
-function RTrim(S: String): String;
-function Trim(S: String): String;
-procedure TrimEx(var S: String);
-
-// file stuff
 function AddBkSlash(Path: string): string;
 function RemoveBkSlash(Path: string): string;
 {$IFDEF Windows}
 function GetFileCreationTime(const FileName: AnsiString; out CreationTime: TDateTime): Boolean;
 {$ENDIF}
 function GetFileAge(const FileName: AnsiString; out DT: TDateTime): Boolean;
-function DirExists(Path: string): boolean;
-function DirCreate(Path: string): boolean;
-function FileExists(const Name: string): boolean;
-function FileDelete(const Name: string): boolean;
+function FileCopy(const OldName, NewName: string): Boolean;
 function FileRename(const OldName, NewName: string): boolean;
 function FileRenameEx(const OldName, NewName: string): boolean;
 function CheckWildcard(const Src, Mask: String): Boolean;
 function IsWildcard(const Mask: String): Boolean;
-
-// misc stuff
 procedure Info(const s: string);
 function SplitPathAge(const PathAge: string; var Path: string; var Age: integer): boolean;
 
 implementation
-
-function LTrim(S: String): String;
-var
-  K: Byte;
-begin
-  K:=1;
-
-  while (K <= Length(S)) and (S[K] = ' ') do
-    Inc(K);
-
-  LTrim:=Copy(S, K, 255);
-end;
-
-function RTrim(S: String): String;
-var
-  L: Byte;
-begin
-  L:=Length(S);
-
-  while (L <> 0) and (S[L] = ' ') do
-    Dec(L);
-
-  RTrim:=Copy(S, 1, L);
-end;
-
-procedure TrimEx(var S: String);
-var
-  K, L: Byte;
-begin
-  K:=1;
-
-  while (K <= Length(S)) and (S[K] = ' ') do
-    Inc(K);
-
-  L:=Length(S);
-
-  while (L <> 0) and (S[L] = ' ') do
-    Dec(L);
-
-  Dec(L, K);
-  Inc(L);
-
-  S:=Copy(S, K, L);
-end;
-
-function Trim(S: String): String;
-begin
-  TrimEx(S);
-
-  Trim:=S;
-end;
-
-function UpStr(const s: string): string;
-var
-  i: byte;
-begin
-  for i := 1 to Length(s) do result[i] := UpCase(s[i]);
-  result[0] := s[0];
-end;
 
 procedure Info(const s: string);
 begin
@@ -110,17 +38,17 @@ end;
 function AddBkSlash(Path: string): string;
 begin
   if Path[Length(Path)] = DirectorySeparator then
-    result := Path
+    Result := Path
   else
-    result := Path + DirectorySeparator;
+    Result := Path + DirectorySeparator;
 end;
 
 function RemoveBkSlash(Path: string): string;
 begin
   if Path[Length(Path)] = DirectorySeparator then
-    result := copy(Path, 1, Length(Path)-1)
+    Result := Copy(Path, 1, Length(Path)-1)
   else
-    result := Path;
+    Result := Path;
 end;
 
 {$IFDEF Windows}
@@ -156,47 +84,45 @@ begin
     Result := FileAge(FileName, DT);
 end;
 
-function DirExists(Path: string): boolean;
+function FileCopy(const OldName, NewName: string): Boolean;
 var
-  SR: SearchRec;
+  Src, Dst: TFileStream;
 begin
-  FindFirst(Path + '*', AnyFile, SR);
-  result := DosError = 0;
-  FindClose(SR);
+  if OldName = NewName then
+    Exit(False);
+
+  try
+    Src := TFileStream.Create(OldName, fmOpenRead or fmShareDenyNone);
+    try
+      Dst := TFileStream.Create(NewName, fmCreate);
+      try
+        Dst.CopyFrom(Src, 0);
+        Result := True;
+      finally
+        Dst.Free;
+      end;
+    finally
+      Src.Free;
+    end;
+  except
+    Result := False;
+  end;
 end;
 
-function DirCreate(Path: string): boolean;
+function FileRename(const OldName, NewName: string): Boolean;
 begin
-  MkDir(Path);
-  result := IOResult = 0;
-end;
+  if OldName = NewName then
+    Exit(False);
 
-function FileExists(const Name: string): boolean;
-var
-  f: file;
-  a: word;
-begin
-  assign(f, name);
-  GetFAttr(f, a);
-  result := DosError = 0;
-end;
+  Result := RenameFile(OldName, NewName);
+  if Result then
+    Exit;
 
-function FileDelete(const Name: string): boolean;
-var
-  f: file;
-begin
-  assign(f, Name);
-  erase(f);
-  result := IOResult = 0;
-end;
-
-function FileRename(const OldName, NewName: string): boolean;
-var
-  f: file;
-begin
-  assign(f, OldName);
-  rename(f, NewName);
-  result := IOResult = 0;
+  Result := FileCopy(OldName, NewName);
+  if Result then
+    Result := DeleteFile(OldName)
+  else
+    Result := DeleteFile(NewName);
 end;
 
 function FileRenameEx(const OldName, NewName: string): boolean;
@@ -205,11 +131,11 @@ var
 begin
   if not GetFileAge(OldName, DT) then
   begin
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
 
-  result := FileRename(OldName, ChangeFileExt(NewName, '-' +
+  Result := FileRename(OldName, ChangeFileExt(NewName, '-' +
     FormatDateTime('yyyymmdd-hhnnss', DT) + ExtractFileExt(NewName)));
 end;
 
@@ -222,7 +148,7 @@ begin
   i := Pos('|', PathAge);
   if i = 0 then
   begin
-    result := false;
+    Result := false;
     Path := AddBkSlash(PathAge);
   end else
   begin
@@ -230,9 +156,9 @@ begin
     s := Copy(PathAge, i+1, Length(PathAge)-i);
     Val(s, Age, i);
     if i = 0 then
-      result := true
+      Result := true
     else
-      result := false;
+      Result := false;
   end;
 end;
 

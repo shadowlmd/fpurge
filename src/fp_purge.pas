@@ -5,6 +5,7 @@ unit fp_Purge;
 interface
 
 uses
+  SysUtils,
   Objects,
   Dos,
   CfgParser,
@@ -101,7 +102,7 @@ procedure PurgeFile(const Path, Name: string);
 begin
   If KillFiles then
   begin
-    if FileDelete(Path+Name) then
+    if DeleteFile(Path+Name) then
       LogWriteLn('deleted old file "' + Path+Name + '"')
     else
       LogWriteLn('! unable to delete old file "' + Path+Name + '"');
@@ -126,7 +127,7 @@ begin
     Info('Warning: directory "' + Path + '" doen not exist or acces is denied');
   while DosError = 0 do
   begin
-    if not InExcludeList(UpStr(SR.Name)) then
+    if not InExcludeList(UpperCase(SR.Name)) then
     begin
       {$IFDEF Windows}
       if UseCreationTime and GetFileCreationTime(Path + SR.Name, DT) then
@@ -176,7 +177,7 @@ begin
       Info('Error: ArchivePath is not defined');
       exit;
     end;
-    if not (DirExists(AddBkSlash(ArchivePath)) or DirCreate(RemoveBkSlash(ArchivePath))) then
+    if not (DirectoryExists(AddBkSlash(ArchivePath)) or ForceDirectories(RemoveBkSlash(ArchivePath))) then
     begin
       Info('Error: unable to create directory "' + ArchivePath + '"');
       exit;

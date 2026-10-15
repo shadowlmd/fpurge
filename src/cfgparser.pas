@@ -6,8 +6,8 @@ unit CfgParser;
 interface
 
 uses
-  Objects,
-  fp_Misc;
+  SysUtils,
+  Objects;
 
 const
   vtStr  = 1;
@@ -42,14 +42,14 @@ begin
     readln(f, s);
     if length(s) = 0 then
       continue;
-    TrimEx(s);
+    s := Trim(s);
     if s[1] = comment then
       continue;
     i := pos(comment, s);
     if i > 0 then
-      s := RTrim(copy(s, 1, i-1));
+      s := TrimRight(copy(s, 1, i-1));
     if ucase then
-      s := UpStr(s);
+      s := UpperCase(s);
     cfg^.Insert(NewStr(s));
   end;
 
@@ -78,10 +78,10 @@ var
     tmp := copy(ps^, 1, i-1);
 
     // сравниваем значение с названием искомого параметра, выходим, если не совпадают
-    if UpStr(tmp) <> key then exit;
+    if UpperCase(tmp) <> key then exit;
 
     // копируем часть строки после первого встреченного разделителя до конца, удаляем лишние пробелы слева.
-    tmp := LTrim(copy(ps^, i+1, length(ps^)-i));
+    tmp := TrimLeft(copy(ps^, i+1, length(ps^)-i));
 
     // если строка пустая, выходим.
     if length(tmp) = 0 then exit;
@@ -120,8 +120,8 @@ begin
 
     vtBool:
     begin
-      if UpStr(StrValue) = 'YES' then boolean(value) := true  else
-      if UpStr(StrValue) = 'NO'  then boolean(value) := false else
+      if UpperCase(StrValue) = 'YES' then boolean(value) := true  else
+      if UpperCase(StrValue) = 'NO'  then boolean(value) := false else
       begin
         result := false;
         CfgLastError := 'value of "' + key + '" must be "Yes" or "No"';
